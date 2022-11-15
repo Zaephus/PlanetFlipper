@@ -6,57 +6,67 @@ public class TerrainFace {
 
     private ShapeGenerator shapeGenerator;
     private Mesh mesh;
-    private int resolution;
+    private int vertexResolution;
+    private int meshResolution;
     private Vector3 localUp;
     private Vector3 axisA;
     private Vector3 axisB;
 
-    public TerrainFace(ShapeGenerator _shapeGenerator, Mesh _mesh, int _res, Vector3 _localUp) {
+    private int startX;
+    private int startY;
+
+    public TerrainFace(ShapeGenerator _shapeGenerator, Mesh _mesh, int _vertRes, int _meshRes, Vector3 _localUp, int _startX, int _startY) {
 
         shapeGenerator = _shapeGenerator;
         mesh = _mesh;
-        resolution = _res;
+        vertexResolution = _vertRes;
+        meshResolution = _meshRes;
         localUp = _localUp;
 
         axisA = new Vector3(_localUp.y, _localUp.z, _localUp.x);
         axisB = Vector3.Cross(_localUp, axisA);
 
+        startX = _startX;
+        startY = _startY;
+
     }
 
     public void ConstructMesh() {
 
-        Vector3[] vertices = new Vector3[resolution * resolution];
-        int[] triangles = new int[(resolution - 1) * (resolution - 1) * 6];
+        Vector3[] vertices = new Vector3[vertexResolution * vertexResolution];
+        int[] triangles = new int[(vertexResolution - 1) * (vertexResolution - 1) * 6];
 
+        int i = 0;
         int triIndex = 0;
 
         Vector2[] uv = (mesh.uv.Length == vertices.Length) ? mesh.uv : new Vector2[vertices.Length];
 
-        for(int y = 0; y < resolution; y++) {
-            for(int x = 0; x < resolution; x++) {
+        for(int y = startY; y < startY + vertexResolution; y++) {
+            for(int x = startX; x < startX + vertexResolution; x++) {
 
-                int i = x + y * resolution;
-                
-                Vector2 percent = new Vector2(x, y) / (resolution - 1);
+                Vector2 percent = new Vector2(x, y) / (vertexResolution * meshResolution - meshResolution);
+                Debug.Log(percent);
                 Vector3 pointOnUnitCube = localUp + ((percent.x - 0.5f) * 2 * axisA) + ((percent.y - 0.5f) * 2 * axisB);
                 Vector3 pointOnUnitSphere = PointOnCubeToPointOnSphere(pointOnUnitCube);
                 float unscaledElevation = shapeGenerator.CalculateUnscaledElevation(pointOnUnitSphere);
                 vertices[i] = pointOnUnitSphere * shapeGenerator.GetScaledElevation(unscaledElevation);
                 uv[i].y = unscaledElevation;
 
-                if(x != resolution - 1 && y != resolution - 1) {
+                if(x != startX + vertexResolution - 1 && y != startY + vertexResolution - 1) {
 
                     triangles[triIndex] = i;
-                    triangles[triIndex + 1] = i + resolution + 1;
-                    triangles[triIndex + 2] = i + resolution;
+                    triangles[triIndex + 1] = i + vertexResolution + 1;
+                    triangles[triIndex + 2] = i + vertexResolution;
 
                     triangles[triIndex + 3] = i;
                     triangles[triIndex + 4] = i + 1;
-                    triangles[triIndex + 5] = i + resolution + 1;
+                    triangles[triIndex + 5] = i + vertexResolution + 1;
 
                     triIndex += 6;
 
                 }
+
+                i++;
 
             }
         }
@@ -73,16 +83,18 @@ public class TerrainFace {
 
         Vector2[] uv = mesh.uv;
 
-        for(int y = 0; y < resolution; y++) {
-            for(int x = 0; x < resolution; x++) {
+        int i = 0;
 
-                int i = x + y * resolution;
+        for(int y = startY; y < startY + vertexResolution; y++) {
+            for(int x = startX; x < startX + vertexResolution; x++) {
                 
-                Vector2 percent = new Vector2(x, y) / (resolution - 1);
+                Vector2 percent = new Vector2(x, y) / (vertexResolution * meshResolution - meshResolution);
                 Vector3 pointOnUnitCube = localUp + ((percent.x - 0.5f) * 2 * axisA) + ((percent.y - 0.5f) * 2 * axisB);
                 Vector3 pointOnUnitSphere = PointOnCubeToPointOnSphere(pointOnUnitCube);
 
                 uv[i].x = _colourGenerator.BiomePercentFromPoint(pointOnUnitSphere);
+
+                i++;
 
             }
         }

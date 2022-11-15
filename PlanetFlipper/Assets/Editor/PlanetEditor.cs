@@ -6,10 +6,10 @@ using UnityEditor;
 [CustomEditor(typeof(Planet))]
 public class PlanetEditor : Editor {
 
-    Planet planet;
+    private Planet planet;
 
-    Editor shapeEditor;
-    Editor colourEditor;
+    private Editor shapeEditor;
+    private Editor colourEditor;
 
     public override void OnInspectorGUI() {
 
@@ -25,6 +25,10 @@ public class PlanetEditor : Editor {
 
         if(GUILayout.Button("Generate Planet")) {
             planet.GeneratePlanet();
+        }
+
+        if(GUILayout.Button("Reset Meshes")) {
+            planet.ResetMeshes();
         }
 
         DrawSettingsEditor(planet.shapeSettings, planet.OnShapeSettingsUpdated, ref planet.shapeSettingsFoldout, ref shapeEditor);
