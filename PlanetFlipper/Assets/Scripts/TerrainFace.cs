@@ -45,7 +45,6 @@ public class TerrainFace {
             for(int x = startX; x < startX + vertexResolution; x++) {
 
                 Vector2 percent = new Vector2(x, y) / (vertexResolution * meshResolution - meshResolution);
-                Debug.Log(percent);
                 Vector3 pointOnUnitCube = localUp + ((percent.x - 0.5f) * 2 * axisA) + ((percent.y - 0.5f) * 2 * axisB);
                 Vector3 pointOnUnitSphere = PointOnCubeToPointOnSphere(pointOnUnitCube);
                 float unscaledElevation = shapeGenerator.CalculateUnscaledElevation(pointOnUnitSphere);
