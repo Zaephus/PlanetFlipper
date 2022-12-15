@@ -80,6 +80,9 @@ public class Planet : MonoBehaviour {
     }
 
     public void GeneratePlanet() {
+        if(meshFilters != null) {
+            ResetMeshes();
+        }
         Initialize();
         GenerateMesh();
         GenerateColours();
